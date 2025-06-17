@@ -108,6 +108,7 @@ bool isValidSimbol(char c) {
 }
 
 double mulDiv(const string& expression, int& i, bool& error);
+
 double stepen(const string& expression, int& i, bool& error);
 
 double firstAnalis(const string& expression, int& i, bool& error)
@@ -245,6 +246,82 @@ double mulDiv(const string& expression, int& i, bool& error) {
     return left;
 }
 
+TEST(mulDiv, базовое”множение) {
+    bool error = false;
+    int position = 0;
+    string expression = "2*3";
+
+    double result = mulDiv(expression, position, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 6);
+}
+
+TEST(mulDiv, базовоеƒеление) {
+    bool error = false;
+    int position = 0;
+    string expression = "6/3";
+
+    double result = mulDiv(expression, position, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 2);
+}
+
+TEST(mulDiv, ассоциативность”множени€) {
+    bool error = false;
+    int position = 0;
+    string expression = "6*3*4";
+
+    double result = mulDiv(expression, position, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 72);
+}
+
+TEST(mulDiv, ассоциативностьƒелени€) {
+    bool error = false;
+    int position = 0;
+    string expression = "24/3/2";
+
+    double result = mulDiv(expression, position, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 4);
+}
+
+TEST(mulDiv, умножениеЌаЌоль) {
+    bool error = false;
+    int position = 0;
+    string expression = "6*0";
+
+    double result = mulDiv(expression, position, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 0);
+}
+
+TEST(mulDiv, делениеЌаЌоль) {
+    bool error = false;
+    int position = 0;
+    string expression = "6/0";
+
+    double result = mulDiv(expression, position, error);
+
+    EXPECT_TRUE(error);
+}
+
+TEST(mulDiv, смешанное¬ыражение) {
+    bool error = false;
+    int position = 0;
+    string expression = "6*7/2";
+
+    double result = mulDiv(expression, position, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 21);
+}
+
 string replaceMulti(const std::string& expression) {
     std::string result;
     for (size_t i = 0; i < expression.length(); ++i) {
@@ -371,7 +448,7 @@ TEST(“естЌaCтепень, нуль—епень)
 
 int main(int argc, char** argv) {
     setlocale(LC_ALL, "ru");
-
+    setlocale(LC_NUMERIC, "C");
     ::testing::InitGoogleTest(&argc, argv);
 
     int test_result = RUN_ALL_TESTS();
