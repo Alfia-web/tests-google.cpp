@@ -10,14 +10,28 @@ using namespace std;
 
 bool exc = false;
 
-// ќбъ€влени€ функций
-double operations(char op, double a, double b, bool& error);
-double readNumber(const string& expression, int& i, bool& error);
-bool isOperator(char c);
-double firstAnalis(const string& expression, int& i, bool& error);
-double stepen(const string& expression, int& i, bool& error);
-double mulDiv(const string& expression, int& i, bool& error);
 double resultAnalis(const string& expression, int& i, bool& error);
+
+double readNumber(const string& expression, int& i) {
+    string value;
+    while (i < expression.length() && (isdigit(expression[i]) || expression[i] == '.')) {
+        value += expression[i++];
+    }
+    return stod(value);
+}
+
+bool isOperator(char c) {
+    return c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '#';
+}
+
+bool isValidSimbol(char c) {
+    return isdigit(c) || c == '.' || c == '#' || isOperator(c) || c == '(' || c == ')' || isspace(c);
+}
+
+double mulDiv(const string& expression, int& i, bool& error);
+
+double stepen(const string& expression, int& i, bool& error);
+
 
 double operations(char op, double a, double b, bool& error) {
     switch (op) {
@@ -90,25 +104,6 @@ void testApply() {
 
     cout << "”спешных тестов: " << passed << " / " << tests.size() << endl;
 }
-
-double readNumber(const string& expression, int& i) {
-    string value;
-    while (i < expression.length() && (isdigit(expression[i]) || expression[i] == '.')) {
-        value += expression[i++];
-    }
-    return stod(value);
-}
-
-bool isOperator(char c) {
-    return c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '#';
-}
-
-bool isValidSimbol(char c) {
-    return isdigit(c) || c == '.' || c == '#' || isOperator(c) || c == '(' || c == ')' || isspace(c);
-}
-
-double mulDiv(const string& expression, int& i, bool& error);
-double stepen(const string& expression, int& i, bool& error);
 
 double firstAnalis(const string& expression, int& i, bool& error)
 {
@@ -197,6 +192,41 @@ double firstAnalis(const string& expression, int& i, bool& error)
     }
 }
 
+//“≈—“
+TEST(firstAnalis, дес€тичное„исло)
+{
+    bool error = false;
+    int position = 0;
+    string expression = "12.34";
+
+    double result = firstAnalis(expression, position, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 12.34);
+}
+
+TEST(firstAnalis, „исло—“очки) {
+    bool error = false;
+    int pos = 0;
+    string expression = ".5";
+
+    double result = firstAnalis(expression, pos, error);
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 0.5);
+}
+
+
+TEST(firstAnalis, не„исло) {
+    bool error = false;
+    int pos = 0;
+    string expr = "abc";
+
+    double result = firstAnalis(expr, pos, error);
+
+    EXPECT_TRUE(error);
+}
+
+
 double stepen(const string& expression, int& i, bool& error) {
     double left = firstAnalis(expression, i, error);
 
@@ -227,11 +257,12 @@ double mulDiv(const string& expression, int& i, bool& error) {
     if (error)
         return 0;
 
-    while (i < expression.length()) {
+    while (i < expression.length())
+    {
         while (i < expression.length() && isspace(expression[i]))
             i++;
-
-        if (i < expression.length() && (expression[i] == '*' || expression[i] == '/')) {
+        if (i < expression.length() && (expression[i] == '*' || expression[i] == '/'))
+        {
             char op = expression[i++];
             double right = stepen(expression, i, error);
             if (error)
@@ -273,12 +304,15 @@ double resultAnalis(const string& expression, int& i, bool& error) {
 
     if (error)
         return 0;
+
     while (i < expression.length())
     {
         while (i < expression.length() && isspace(expression[i]))
             i++;
+
         if (i < expression.length() && (expression[i] == '+' || expression[i] == '-'))
         {
+
             char op = expression[i++];
             double right = mulDiv(expression, i, error);
             if (error)
@@ -314,7 +348,6 @@ void runAnalis() {
         if (error) {
             if (!exc)
                 cout << "ќшибка в выражении" << endl;
-
         }
     }
 }
@@ -369,6 +402,7 @@ TEST(“естЌaCтепень, отрицательное„исло)
 
 int main(int argc, char** argv) {
     setlocale(LC_ALL, "ru");
+    setlocale(LC_NUMERIC, "C");
 
     ::testing::InitGoogleTest(&argc, argv);
 
