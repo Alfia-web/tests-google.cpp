@@ -194,10 +194,10 @@ double firstAnalis(const string& expression, int& i, bool& error)
 
 TEST(firstAnalis, отрицательное„исло) {
     bool error = false;
-    int pos = 0;
-    string expr = "-3.14";
+    int position = 0;
+    string expression = "-3.14";
 
-    double result = firstAnalis(expr, pos, error);
+    double result = firstAnalis(expression, position, error);
 
     EXPECT_FALSE(error);
     EXPECT_DOUBLE_EQ(result, -3.14);
@@ -206,10 +206,10 @@ TEST(firstAnalis, отрицательное„исло) {
 
 TEST(firstAnalis, „исло—“очки) {
     bool error = false;
-    int pos = 0;
+    int position = 0;
     string expression = ".5";
 
-    double result = firstAnalis(expression, pos, error);
+    double result = firstAnalis(expression, position, error);
     EXPECT_FALSE(error);
     EXPECT_DOUBLE_EQ(result, 0.5);
 }
@@ -217,39 +217,39 @@ TEST(firstAnalis, „исло—“очки) {
 
 TEST(firstAnalis, выражение¬—кобках) {
     bool error = true;
-    int pos = 0;
-    string expr = "(45-3";
-    double result = firstAnalis(expr, pos, error);
+    int position = 0;
+    string expression = "(45-3";
+    double result = firstAnalis(expression, position, error);
     EXPECT_TRUE(error);
 }
 
 
 TEST(firstAnalis, не„исло) {
     bool error = false;
-    int pos = 0;
-    string expr = "abc";
+    int position = 0;
+    string expression = "abc";
 
-    double result = firstAnalis(expr, pos, error);
+    double result = firstAnalis(expression, position, error);
 
     EXPECT_TRUE(error);
 }
 
 TEST(firstAnalis, неправильноеƒес€тичное) {
     bool error = false;
-    int pos = 0;
-    string expr = "12..54";
+    int position = 0;
+    string expression = "12..54";
 
-    double result = firstAnalis(expr, pos, error);
+    double result = firstAnalis(expression, position, error);
 
     EXPECT_TRUE(error);
 }
 
 TEST(firstAnalis, отрицательные—обки) {
     bool error = false;
-    int pos = 0;
-    string expr = "-(-5)";
+    int position = 0;
+    string expression = "-(-5)";
 
-    double result = firstAnalis(expr, pos, error);
+    double result = firstAnalis(expression, position, error);
 
     EXPECT_FALSE(error);
     EXPECT_DOUBLE_EQ(result, 5);
@@ -257,23 +257,24 @@ TEST(firstAnalis, отрицательные—обки) {
 
 TEST(firstAnalis, после„ислаќшибка) {
     bool error = true;
-    int pos = 0;
-    string expr = "1000%%";
+    int position = 0;
+    string expression = "1000%%";
 
-    double result = firstAnalis(expr, pos, error);
+    double result = firstAnalis(expression, position, error);
 
     EXPECT_TRUE(error);
 }
 
 TEST(firstAnalis, отрицательный орень) {
     bool error = true;
-    int pos = 0;
-    string expr = "#-100";
+    int position = 0;
+    string expression = "#-100";
 
-    double result = firstAnalis(expr, pos, error);
+    double result = firstAnalis(expression, position, error);
 
     EXPECT_TRUE(error);
 }
+
 
 double stepen(const string& expression, int& i, bool& error) {
     double left = firstAnalis(expression, i, error);
@@ -299,7 +300,7 @@ double stepen(const string& expression, int& i, bool& error) {
     return left;
 }
 
-TEST(“естЌaCтепень, базовый)
+TEST(stepen, базовый)
 {
     bool error = false;
     int position = 0;
@@ -311,7 +312,7 @@ TEST(“естЌaCтепень, базовый)
     EXPECT_DOUBLE_EQ(result, 8);
 }
 
-TEST(“естЌaCтепень, ассоциативность)
+TEST(stepen, ассоциативность)
 {
     bool error = false;
     int position = 0;
@@ -323,7 +324,7 @@ TEST(“естЌaCтепень, ассоциативность)
     EXPECT_DOUBLE_EQ(result, 512);
 }
 
-TEST(“естЌaCтепень, нуль—епень)
+TEST(stepen, нуль—епень)
 {
     bool error = false;
     int position = 0;
@@ -335,7 +336,7 @@ TEST(“естЌaCтепень, нуль—епень)
     EXPECT_DOUBLE_EQ(result, 1);
 }
 
-TEST(“естЌaCтепень, отрицательное„исло)
+TEST(stepen, отрицательное„исло)
 {
     bool error = false;
     int position = 0;
@@ -560,6 +561,17 @@ TEST(resultAnalis, сложное¬ыражение3) {
     EXPECT_FALSE(error);
     EXPECT_DOUBLE_EQ(result, (2 + 3) * (4 - 1));
 }
+
+TEST(resultAnalis, двойнойќператор) {
+    bool error = true;
+    int  position = 0;
+    string expression = "2++5";
+
+    double result = resultAnalis(expression, position, error);
+
+    EXPECT_TRUE(error);
+}
+
 
 
 void runAnalis() {
