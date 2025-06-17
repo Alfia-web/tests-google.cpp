@@ -192,7 +192,6 @@ double firstAnalis(const string& expression, int& i, bool& error)
     }
 }
 
-//ТЕСТ
 TEST(firstAnalis, отрицательноеЧисло) {
     bool error = false;
     int pos = 0;
