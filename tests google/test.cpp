@@ -245,18 +245,45 @@ double mulDiv(const string& expression, int& i, bool& error) {
     return left;
 }
 
-string replaceMulti(const std::string& expression) {
-    std::string result;
+string replaceMulti(const string& expression) {
+    string result;
     for (size_t i = 0; i < expression.length(); ++i) {
-        if (expression[i] == '(')
-        {
-            if (i > 0 && (isdigit(expression[i - 1]) || expression[i - 1] == '.')) {
-                result += '*';
-            }
+        if (i > 0 && expression[i] == '(' &&
+            (isdigit(expression[i - 1]) || expression[i - 1] == ')')) {
+            result += '*';
         }
+        else if (i > 0 && isdigit(expression[i - 1]) && expression[i] == '(') {
+            result += '*';
+        }
+        else if (i > 0 && expression[i - 1] == ')' &&
+            (isdigit(expression[i]) || expression[i] == '.')) {
+            result += '*';
+        }
+
         result += expression[i];
     }
     return result;
+}
+
+TEST(ReplaceMulti, число—кобка) {
+    string expression = "2(3+4)";
+    string expected = "2*(3+4)";
+    string result = replaceMulti(expression);
+    EXPECT_EQ(result, expected);
+}
+
+TEST(ReplaceMulti, скобка„исло) {
+    string expression = "(2+3)4";
+    string expected = "(2+3)*4";
+    string result = replaceMulti(expression);
+    EXPECT_EQ(result, expected);
+}
+
+TEST(ReplaceMulti, скобка—кобка) {
+    string expression = "(3+4)(5+6)";
+    string expected = "(3+4)*(5+6)";
+    string result = replaceMulti(expression);
+    EXPECT_EQ(result, expected);
 }
 
 bool validateExpression(const string& expression) {
