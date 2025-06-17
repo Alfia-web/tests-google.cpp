@@ -192,7 +192,6 @@ double firstAnalis(const string& expression, int& i, bool& error)
     }
 }
 
-//“≈—“
 TEST(firstAnalis, отрицательное„исло) {
     bool error = false;
     int pos = 0;
@@ -373,18 +372,77 @@ double mulDiv(const string& expression, int& i, bool& error) {
     return left;
 }
 
-string replaceMulti(const std::string& expression) {
-    std::string result;
+TEST(mulDiv, умножениеЌаЌоль) {
+    bool error = false;
+    int position = 0;
+    string expression = "6*0";
+
+    double result = mulDiv(expression, position, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 0);
+}
+
+TEST(mulDiv, делениеЌаЌоль) {
+    bool error = false;
+    int position = 0;
+    string expression = "6/0";
+
+    double result = mulDiv(expression, position, error);
+
+    EXPECT_TRUE(error);
+}
+
+TEST(mulDiv, смешанное¬ыражение) {
+    bool error = false;
+    int position = 0;
+    string expression = "6*7/2";
+
+    double result = mulDiv(expression, position, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 21);
+}
+
+string replaceMulti(const string& expression) {
+    string result;
     for (size_t i = 0; i < expression.length(); ++i) {
-        if (expression[i] == '(')
-        {
-            if (i > 0 && (isdigit(expression[i - 1]) || expression[i - 1] == '.')) {
-                result += '*';
-            }
+        if (i > 0 && expression[i] == '(' &&
+            (isdigit(expression[i - 1]) || expression[i - 1] == ')')) {
+            result += '*';
         }
+        else if (i > 0 && isdigit(expression[i - 1]) && expression[i] == '(') {
+            result += '*';
+        }
+        else if (i > 0 && expression[i - 1] == ')' &&
+            (isdigit(expression[i]) || expression[i] == '.')) {
+            result += '*';
+        }
+
         result += expression[i];
     }
     return result;
+}
+
+TEST(ReplaceMulti, число—кобки) {
+    string expression = "2(3+4)";
+    string expected = "2*(3+4)";
+    string result = replaceMulti(expression);
+    EXPECT_EQ(result, expected);
+}
+
+TEST(ReplaceMulti, скобки„исло) {
+    string expression = "(2+3)4";
+    string expected = "(2+3)*4";
+    string result = replaceMulti(expression);
+    EXPECT_EQ(result, expected);
+}
+
+TEST(ReplaceMulti, скобки—кобки) {
+    string expression = "(3+4)(5+6)";
+    string expected = "(3+4)*(5+6)";
+    string result = replaceMulti(expression);
+    EXPECT_EQ(result, expected);
 }
 
 bool validateExpression(const string& expression) {
