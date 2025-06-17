@@ -193,17 +193,17 @@ double firstAnalis(const string& expression, int& i, bool& error)
 }
 
 //“≈—“
-TEST(firstAnalis, дес€тичное„исло)
-{
+TEST(firstAnalis, отрицательное„исло) {
     bool error = false;
-    int position = 0;
-    string expression = "12.34";
+    int pos = 0;
+    string expr = "-3.14";
 
-    double result = firstAnalis(expression, position, error);
+    double result = firstAnalis(expr, pos, error);
 
     EXPECT_FALSE(error);
-    EXPECT_DOUBLE_EQ(result, 12.34);
+    EXPECT_DOUBLE_EQ(result, -3.14);
 }
+
 
 TEST(firstAnalis, „исло—“очки) {
     bool error = false;
@@ -213,6 +213,15 @@ TEST(firstAnalis, „исло—“очки) {
     double result = firstAnalis(expression, pos, error);
     EXPECT_FALSE(error);
     EXPECT_DOUBLE_EQ(result, 0.5);
+}
+
+
+TEST(firstAnalis, выражение¬—кобках) {
+    bool error = true;
+    int pos = 0;
+    string expr = "(45-3";
+    double result = firstAnalis(expr, pos, error);
+    EXPECT_TRUE(error);
 }
 
 
@@ -226,6 +235,36 @@ TEST(firstAnalis, не„исло) {
     EXPECT_TRUE(error);
 }
 
+TEST(firstAnalis, неправильноеƒес€тичное) {
+    bool error = false;
+    int pos = 0;
+    string expr = "12..54";
+
+    double result = firstAnalis(expr, pos, error);
+
+    EXPECT_TRUE(error);
+}
+
+TEST(firstAnalis, отрицательные—обки) {
+    bool error = false;
+    int pos = 0;
+    string expr = "-(-5)";
+
+    double result = firstAnalis(expr, pos, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 5);
+}
+
+TEST(firstAnalis, после„ислаќшибка) {
+    bool error = true;
+    int pos = 0;
+    string expr = "1000%%";
+
+    double result = firstAnalis(expr, pos, error);
+
+    EXPECT_TRUE(error);
+}
 
 double stepen(const string& expression, int& i, bool& error) {
     double left = firstAnalis(expression, i, error);
