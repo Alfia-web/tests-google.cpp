@@ -343,18 +343,6 @@ TEST(ТестНaCтепень, ассоциативность)
     EXPECT_DOUBLE_EQ(result, 512);
 }
 
-TEST(ТестНaCтепень, отрицательноеЧисло)
-{
-    bool error = true;
-    int position = 0;
-    string expression = "-2^3";
-
-    double result = stepen(expression, position, error);
-
-    EXPECT_FALSE(error);
-    EXPECT_DOUBLE_EQ(result, -8);
-}
-
 TEST(ТестНaCтепень, нульСепень)
 {
     bool error = false;
@@ -367,7 +355,17 @@ TEST(ТестНaCтепень, нульСепень)
     EXPECT_DOUBLE_EQ(result, 1);
 }
 
+TEST(ТестНaCтепень, отрицательноеЧисло)
+{
+    bool error = false;
+    int position = 0;
+    string expression = "-2^3";
 
+    double result = stepen(expression, position, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, -8);
+}
 
 int main(int argc, char** argv) {
     setlocale(LC_ALL, "ru");
