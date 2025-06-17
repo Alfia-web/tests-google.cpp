@@ -423,6 +423,83 @@ double resultAnalis(const string& expression, int& i, bool& error) {
     return left;
 }
 
+TEST(resultAnalis, сложение) {
+    bool error = false;
+    int pos = 0;
+    string expr = "2+3-1";
+
+    double result = resultAnalis(expr, pos, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 4);
+}
+
+TEST(resultAnalis, сложение—ѕробелами) {
+    bool error = false;
+    int pos = 0;
+    string expr = "2    +     3    -   1";
+
+    double result = resultAnalis(expr, pos, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 4);
+}
+
+TEST(resultAnalis, приоритет) {
+    bool error = false;
+    int pos = 0;
+    string expr = "2+3*5";
+
+    double result = resultAnalis(expr, pos, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 17);
+}
+
+TEST(resultAnalis, приоритет—кобки) {
+    bool error = false;
+    int pos = 0;
+    string expr = "(2+3)*5";
+
+    double result = resultAnalis(expr, pos, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 25);
+}
+
+TEST(resultAnalis, сложное¬ыражение1) {
+    bool error = false;
+    int pos = 0;
+    string expr = "2+3*4-5.3/2";
+
+    double result = resultAnalis(expr, pos, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 2 + 3 * 4 - 5.3 / 2);
+}
+
+TEST(resultAnalis, сложное¬ыражение2) {
+    bool error = false;
+    int pos = 0;
+    string expr = "((2+3)4)-5";
+
+    double result = resultAnalis(expr, pos, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, ((2 + 3) * 4) - 5);
+}
+
+TEST(resultAnalis, сложное¬ыражение3) {
+    bool error = false;
+    int pos = 0;
+    string expr = "(2+3)(4-1)";
+
+    double result = resultAnalis(expr, pos, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, ((2 + 3) * (4 - 1)));
+}
+
 
 void runAnalis() {
     while (true) {
