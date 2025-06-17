@@ -91,62 +91,56 @@ void testApply() {
     cout << "Успешных тестов: " << passed << " / " << tests.size() << endl;
 }
 
-double readNumber(const string& expression, int& i, bool& error) {
+double readNumber(const string& expression, int& i) {
     string value;
-    bool hasPoint = false;
-    int start = i;
-
-    if (expression[i] == '.' && (i + 1 >= expression.size() || !isdigit(expression[i + 1]))) {
-        error = true;
-        return 0;
+    while (i < expression.length() && (isdigit(expression[i]) || expression[i] == '.')) {
+        value += expression[i++];
     }
-
-    while (i < expression.size() && (isdigit(expression[i]) || expression[i] == '.')) {
-        if (expression[i] == '.') {
-            if (hasPoint) {
-                error = true;
-                return 0;
-            }
-            hasPoint = true;
-        }
-        i++;
-    }
-
-    if (i > start && expression[i - 1] == '.') {
-        error = true;
-        return 0;
-    }
-
-    try {
-        return stod(expression.substr(start, i - start));
-    }
-    catch (...) {
-        error = true;
-        return 0;
-    }
+    return stod(value);
 }
 
 bool isOperator(char c) {
-    return c == '+' || c == '-' || c == '*' || c == '/' || c == '^';
+    return c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '#';
 }
 
-double firstAnalis(const string& expression, int& i, bool& error) {
+bool isValidSimbol(char c) {
+    return isdigit(c) || c == '.' || c == '#' || isOperator(c) || c == '(' || c == ')' || isspace(c);
+}
+
+double mulDiv(const string& expression, int& i, bool& error);
+double stepen(const string& expression, int& i, bool& error);
+
+double firstAnalis(const string& expression, int& i, bool& error)
+{
     while (i < expression.length() && isspace(expression[i]))
         i++;
 
     bool negative = false;
 
     if (i < expression.size() && expression[i] == '-' &&
-        (i == 0 || expression[i - 1] == '(' || isOperator(expression[i - 1]))) {
+        (i == 0 || expression[i - 1] == '(' || isOperator(expression[i - 1])))
+    {
         negative = true;
         i++;
         while (i < expression.length() && isspace(expression[i]))
             i++;
     }
-
-    if (i < expression.size() && expression[i] == '(') {
+    if (i < expression.size() && expression[i] == '(')
+    {
+        if (i > 0)
+        {
+            char prevChar = expression[i - 1];
+            if (isdigit(prevChar))
+            {
+                error = true;
+                return 0;
+            }
+        }
         i++;
+
         double value = resultAnalis(expression, i, error);
+        if (error) return 0;
+
         if (i >= expression.size() || expression[i] != ')') {
             error = true;
             return 0;
@@ -154,16 +148,50 @@ double firstAnalis(const string& expression, int& i, bool& error) {
         i++;
         return negative ? -value : value;
     }
-    else if (i < expression.size() && expression[i] == '#') {
+    else if (i < expression.size() && expression[i] == '#')
+    {
         i++;
         double value = firstAnalis(expression, i, error);
         double result = operations('#', 0, value, error);
         return negative ? -result : result;
     }
-    else if (i < expression.size() && (isdigit(expression[i]) || expression[i] == '.')) {
-        return readNumber(expression, i, error);
+    else if (i < expression.size() && (isdigit(expression[i]) || expression[i] == '.'))
+    {
+        bool hasPoint = false;
+        int start = i;
+
+        if (expression[i] == '.' && (i + 1 >= expression.size() || !isdigit(expression[i + 1])))
+        {
+            error = true;
+            return 0;
+        }
+
+        while (i < expression.size() && (isdigit(expression[i]) || expression[i] == '.'))
+        {
+            if (expression[i] == '.')
+            {
+                if (hasPoint)
+                {
+                    error = true;
+                    return 0;
+                }
+                hasPoint = true;
+            }
+            i++;
+        }
+
+        if (i > start && expression[i - 1] == '.')
+        {
+            error = true;
+            return 0;
+        }
+
+        i = start;
+        double number = readNumber(expression, i);
+        return negative ? -number : number;
     }
-    else {
+    else
+    {
         error = true;
         return 0;
     }
@@ -217,17 +245,40 @@ double mulDiv(const string& expression, int& i, bool& error) {
     return left;
 }
 
+string replaceMulti(const std::string& expression) {
+    std::string result;
+    for (size_t i = 0; i < expression.length(); ++i) {
+        if (expression[i] == '(')
+        {
+            if (i > 0 && (isdigit(expression[i - 1]) || expression[i - 1] == '.')) {
+                result += '*';
+            }
+        }
+        result += expression[i];
+    }
+    return result;
+}
+
+bool validateExpression(const string& expression) {
+    for (char c : expression) {
+        if (!isValidSimbol(c)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 double resultAnalis(const string& expression, int& i, bool& error) {
     double left = mulDiv(expression, i, error);
 
     if (error)
         return 0;
-
-    while (i < expression.length()) {
+    while (i < expression.length())
+    {
         while (i < expression.length() && isspace(expression[i]))
             i++;
-
-        if (i < expression.length() && (expression[i] == '+' || expression[i] == '-')) {
+        if (i < expression.length() && (expression[i] == '+' || expression[i] == '-'))
+        {
             char op = expression[i++];
             double right = mulDiv(expression, i, error);
             if (error)
@@ -241,6 +292,7 @@ double resultAnalis(const string& expression, int& i, bool& error) {
     return left;
 }
 
+
 void runAnalis() {
     while (true) {
         string input;
@@ -248,14 +300,21 @@ void runAnalis() {
         getline(cin, input);
         if (input == "exit")
             break;
+
+        if (!validateExpression(input)) {
+            continue;
+        }
+        string processedInput = replaceMulti(input);
+
         bool error = false;
         int i = 0;
-        double result = resultAnalis(input, i, error);
+        double result = resultAnalis(processedInput, i, error);
         if (!error)
             cout << "Результат: " << result << endl;
         if (error) {
             if (!exc)
                 cout << "Ошибка в выражении" << endl;
+
         }
     }
 }
