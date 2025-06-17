@@ -266,6 +266,16 @@ TEST(firstAnalis, после„ислаќшибка) {
     EXPECT_TRUE(error);
 }
 
+TEST(firstAnalis, отрицательный орень) {
+    bool error = true;
+    int pos = 0;
+    string expr = "#-100";
+
+    double result = firstAnalis(expr, pos, error);
+
+    EXPECT_TRUE(error);
+}
+
 double stepen(const string& expression, int& i, bool& error) {
     double left = firstAnalis(expression, i, error);
 
