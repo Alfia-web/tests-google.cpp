@@ -128,21 +128,10 @@ double firstAnalis(const string& expression, int& i, bool& error)
     }
     if (i < expression.size() && expression[i] == '(')
     {
-        if (i > 0)
-        {
-            char prevChar = expression[i - 1];
-            if (isdigit(prevChar))
-            {
-                error = true;
-                return 0;
-            }
-        }
         i++;
-
         double value = resultAnalis(expression, i, error);
-        if (error) return 0;
-
-        if (i >= expression.size() || expression[i] != ')') {
+        if (i >= expression.size() || expression[i] != ')')
+        {
             error = true;
             return 0;
         }
@@ -325,12 +314,18 @@ TEST(mulDiv, смешанное¬ыражение) {
 string replaceMulti(const std::string& expression) {
     std::string result;
     for (size_t i = 0; i < expression.length(); ++i) {
-        if (expression[i] == '(')
-        {
-            if (i > 0 && (isdigit(expression[i - 1]) || expression[i - 1] == '.')) {
-                result += '*';
-            }
+        if (i > 0 && expression[i] == '(' &&
+            (isdigit(expression[i - 1]) || expression[i - 1] == ')')) {
+            result += '*';
         }
+        else if (i > 0 && isdigit(expression[i - 1]) && expression[i] == '(') {
+            result += '*';
+        }
+        else if (i > 0 && expression[i - 1] == ')' &&
+            (isdigit(expression[i]) || expression[i] == '.')) {
+            result += '*';
+        }
+
         result += expression[i];
     }
     return result;
