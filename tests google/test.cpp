@@ -221,6 +221,54 @@ double stepen(const string& expression, int& i, bool& error) {
     return left;
 }
 
+TEST(ТестНaCтепень, базовый)
+{
+    bool error = false;
+    int position = 0;
+    string expression = "2^3";
+
+    double result = stepen(expression, position, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 8);
+}
+
+TEST(ТестНaCтепень, ассоциативность)
+{
+    bool error = false;
+    int position = 0;
+    string expression = "2^3^2";
+
+    double result = stepen(expression, position, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 512);
+}
+
+TEST(ТестНaCтепень, нульСепень)
+{
+    bool error = false;
+    int position = 0;
+    string expression = "5^0";
+
+    double result = stepen(expression, position, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 1);
+}
+
+TEST(ТестНaCтепень, отрицательноеЧисло)
+{
+    bool error = false;
+    int position = 0;
+    string expression = "-2^3";
+
+    double result = stepen(expression, position, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, -8);
+}
+
 double mulDiv(const string& expression, int& i, bool& error) {
     double left = stepen(expression, i, error);
 
@@ -319,53 +367,6 @@ void runAnalis() {
     }
 }
 
-TEST(ТестНaCтепень, базовый)
-{
-    bool error = false;
-    int position = 0;
-    string expression = "2^3";
-
-    double result = stepen(expression, position, error);
-
-    EXPECT_FALSE(error);
-    EXPECT_DOUBLE_EQ(result, 8);
-}
-
-TEST(ТестНaCтепень, ассоциативность)
-{
-    bool error = false;
-    int position = 0;
-    string expression = "2^3^2";
-
-    double result = stepen(expression, position, error);
-
-    EXPECT_FALSE(error);
-    EXPECT_DOUBLE_EQ(result, 512);
-}
-
-TEST(ТестНaCтепень, нульСепень)
-{
-    bool error = false;
-    int position = 0;
-    string expression = "5^0";
-
-    double result = stepen(expression, position, error);
-
-    EXPECT_FALSE(error);
-    EXPECT_DOUBLE_EQ(result, 1);
-}
-
-TEST(ТестНaCтепень, отрицательноеЧисло)
-{
-    bool error = false;
-    int position = 0;
-    string expression = "-2^3";
-
-    double result = stepen(expression, position, error);
-
-    EXPECT_FALSE(error);
-    EXPECT_DOUBLE_EQ(result, -8);
-}
 
 int main(int argc, char** argv) {
     setlocale(LC_ALL, "ru");
