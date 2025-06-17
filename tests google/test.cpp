@@ -284,16 +284,39 @@ TEST(ТестНaCтепень, ассоциативность)
     EXPECT_DOUBLE_EQ(result, 512);
 }
 
+TEST(ТестНaCтепень, отрицательноеЧисло)
+{
+    bool error = true;
+    int position = 0;
+    string expression = "-2^3";
+
+    double result = stepen(expression, position, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, -8);
+}
+
+TEST(ТестНaCтепень, нульСепень)
+{
+    bool error = false;
+    int position = 0;
+    string expression = "5^0";
+
+    double result = stepen(expression, position, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 1);
+}
+
+
+
 int main(int argc, char** argv) {
     setlocale(LC_ALL, "ru");
 
-    // Инициализация Google Test
     ::testing::InitGoogleTest(&argc, argv);
 
-    // Запуск тестов
     int test_result = RUN_ALL_TESTS();
 
-    // Если нужно, оставляем вашу оригинальную логику
     if (test_result == 0) {
         cout << "Калькулятор" << endl;
         testApply();
