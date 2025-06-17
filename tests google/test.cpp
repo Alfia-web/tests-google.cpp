@@ -197,6 +197,9 @@ double firstAnalis(const string& expression, int& i, bool& error)
     }
 }
 
+//реяр
+
+
 double stepen(const string& expression, int& i, bool& error) {
     double left = firstAnalis(expression, i, error);
 
