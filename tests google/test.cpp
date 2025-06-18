@@ -11,6 +11,7 @@ using namespace std;
 bool exc = false;
 
 double resultAnalis(const string& expression, int& i, bool& error);
+string replaceMulti(const string& expression);
 
 double readNumber(const string& expression, int& i) {
     string value;
@@ -105,38 +106,30 @@ void testApply() {
     cout << "”спешных тестов: " << passed << " / " << tests.size() << endl;
 }
 
-double firstAnalis(const string& expression, int& i, bool& error)
-{
+void skipSpaces(const string& expression, int& i) {
     while (i < expression.length() && isspace(expression[i]))
         i++;
+}
+
+double firstAnalis(const string& expression, int& i, bool& error)
+{
+    skipSpaces(expression, i);
 
     bool negative = false;
 
     if (i < expression.size() && expression[i] == '-' &&
-        (i == 0 || expression[i - 1] == '(' || isOperator(expression[i - 1])))
+        (i == 0 || expression[i - 1] == '(' || isOperator(expression[i - 1]))) //con1
     {
         negative = true;
         i++;
-        while (i < expression.length() && isspace(expression[i]))
-            i++;
+        skipSpaces(expression, i);
     }
-    if (i < expression.size() && expression[i] == '(')
+    if (i < expression.size() && expression[i] == '(') //con2
     {
-        if (i > 0)
-        {
-            char prevChar = expression[i - 1];
-            if (isdigit(prevChar))
-            {
-                error = true;
-                return 0;
-            }
-        }
         i++;
-
         double value = resultAnalis(expression, i, error);
-        if (error) return 0;
-
-        if (i >= expression.size() || expression[i] != ')') {
+        if (i >= expression.size() || expression[i] != ')') //con3
+        {
             error = true;
             return 0;
         }
@@ -177,6 +170,35 @@ double firstAnalis(const string& expression, int& i, bool& error)
 
         if (i > start && expression[i - 1] == '.')
         {
+            double resultAnalis(const string & expression, int& i, bool& error);
+            {
+                string newExpression = replaceMulti(expression);
+
+                double left = mulDiv(newExpression, i, error);
+
+                if (error)
+                    return 0;
+
+                while (i < newExpression.length())
+                {
+                    while (i < newExpression.length() && isspace(newExpression[i]))
+                        i++;
+
+                    if (i < newExpression.length() && (newExpression[i] == '+' || newExpression[i] == '-'))
+                    {
+
+                        char op = newExpression[i++];
+                        double right = mulDiv(newExpression, i, error);
+                        if (error)
+                            return 0;
+                        left = operations(op, left, right, error);
+                        if (error)
+                            return 0;
+                    }
+                    else break;
+                }
+                return left;
+            }
             error = true;
             return 0;
         }
@@ -190,17 +212,29 @@ double firstAnalis(const string& expression, int& i, bool& error)
         error = true;
         return 0;
     }
+
 }
 
-TEST(firstAnalis, отрицательное„исло) {
+
+TEST(firstAnalis, отрицательное„исло1) {
     bool error = false;
     int position = 0;
-    string expression = "-3.14";
+    string expression = "-4";
 
     double result = firstAnalis(expression, position, error);
 
     EXPECT_FALSE(error);
-    EXPECT_DOUBLE_EQ(result, -3.14);
+    EXPECT_DOUBLE_EQ(result, -4);
+}
+
+TEST(firstAnalis, отрицательное„исло2) {
+    bool error = true;
+    int position = 0;
+    string expression = "--4";
+
+    double result = firstAnalis(expression, position, error);
+
+    EXPECT_TRUE(error);
 }
 
 
@@ -215,7 +249,7 @@ TEST(firstAnalis, „исло—“очки) {
 }
 
 
-TEST(firstAnalis, выражение¬—кобках) {
+TEST(firstAnalis, выражение¬—кобках1) {
     bool error = true;
     int position = 0;
     string expression = "(45-3";
@@ -223,21 +257,22 @@ TEST(firstAnalis, выражение¬—кобках) {
     EXPECT_TRUE(error);
 }
 
-
-TEST(firstAnalis, не„исло) {
+TEST(firstAnalis, выражение¬—кобках2) {
     bool error = false;
     int position = 0;
-    string expression = "abc";
+    string expression = "(45-3)";
 
     double result = firstAnalis(expression, position, error);
 
-    EXPECT_TRUE(error);
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 42);
 }
+
 
 TEST(firstAnalis, неправильноеƒес€тичное) {
     bool error = false;
     int position = 0;
-    string expression = "12..54";
+    string expression = "5..5";
 
     double result = firstAnalis(expression, position, error);
 
@@ -255,26 +290,26 @@ TEST(firstAnalis, отрицательные—обки) {
     EXPECT_DOUBLE_EQ(result, 5);
 }
 
-TEST(firstAnalis, после„ислаќшибка) {
-    bool error = true;
+TEST(firstAnalis, корень»скобки) {
+    bool error = false;
     int position = 0;
-    string expression = "1000%%";
+    string expression = "#(5+4)";
 
     double result = firstAnalis(expression, position, error);
 
-    EXPECT_TRUE(error);
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 3);
 }
 
 TEST(firstAnalis, отрицательный орень) {
     bool error = true;
     int position = 0;
-    string expression = "#-100";
+    string expression = "#(-6+2)";
 
     double result = firstAnalis(expression, position, error);
 
     EXPECT_TRUE(error);
 }
-
 
 double stepen(const string& expression, int& i, bool& error) {
     double left = firstAnalis(expression, i, error);
@@ -324,7 +359,7 @@ TEST(stepen, ассоциативность)
     EXPECT_DOUBLE_EQ(result, 512);
 }
 
-TEST(stepen, нуль—епень)
+TEST(stepen, нулева€—епень)
 {
     bool error = false;
     int position = 0;
@@ -346,6 +381,28 @@ TEST(stepen, отрицательное„исло)
 
     EXPECT_FALSE(error);
     EXPECT_DOUBLE_EQ(result, -8);
+}
+
+TEST(stepen, пропущено„ислоѕеред—тепенью)
+{
+    bool error = true;
+    int position = 0;
+    string expression = "^3";
+
+    double result = stepen(expression, position, error);
+
+    EXPECT_TRUE(error);
+}
+
+TEST(stepen, пропущено„ислоѕосле—тепени)
+{
+    bool error = true;
+    int position = 0;
+    string expression = "3^";
+
+    double result = stepen(expression, position, error);
+
+    EXPECT_TRUE(error);
 }
 
 double mulDiv(const string& expression, int& i, bool& error) {
@@ -373,36 +430,57 @@ double mulDiv(const string& expression, int& i, bool& error) {
     return left;
 }
 
-TEST(mulDiv, умножениеЌаЌоль) {
+TEST(mulDiv, последовательныеќперации) {
     bool error = false;
     int position = 0;
-    string expression = "6*0";
+    string expression = "4 * 2 / 2";
 
     double result = mulDiv(expression, position, error);
 
     EXPECT_FALSE(error);
-    EXPECT_DOUBLE_EQ(result, 0);
+    EXPECT_DOUBLE_EQ(result, 4*2/2);
 }
 
-TEST(mulDiv, делениеЌаЌоль) {
+TEST(mulDiv, ассоциативность”множени€) {
     bool error = false;
     int position = 0;
-    string expression = "6/0";
+    string expression = "4*5*6";
+
+    double result = mulDiv(expression, position, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 4 * 5 * 6);
+}
+
+TEST(mulDiv, ассоциативностьƒеление) {
+    bool error = false;
+    int position = 0;
+    string expression = "10/5/2";
+
+    double result = mulDiv(expression, position, error);
+
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 10/ 5 / 2);
+}
+
+TEST(mulDiv, пропущено„ислоѕослеќперанда”множени€) {
+    bool error = true;
+    int position = 0;
+    string expression = "4*";
 
     double result = mulDiv(expression, position, error);
 
     EXPECT_TRUE(error);
 }
 
-TEST(mulDiv, смешанное¬ыражение) {
-    bool error = false;
+TEST(mulDiv, пропущено„ислоѕередќперанда”множени€) {
+    bool error = true;
     int position = 0;
-    string expression = "6*7/2";
+    string expression = "*4";
 
     double result = mulDiv(expression, position, error);
 
-    EXPECT_FALSE(error);
-    EXPECT_DOUBLE_EQ(result, 21);
+    EXPECT_TRUE(error);
 }
 
 string replaceMulti(const string& expression) {
@@ -425,26 +503,7 @@ string replaceMulti(const string& expression) {
     return result;
 }
 
-TEST(ReplaceMulti, число—кобки) {
-    string expression = "2(3+4)";
-    string expected = "2*(3+4)";
-    string result = replaceMulti(expression);
-    EXPECT_EQ(result, expected);
-}
 
-TEST(ReplaceMulti, скобки„исло) {
-    string expression = "(2+3)4";
-    string expected = "(2+3)*4";
-    string result = replaceMulti(expression);
-    EXPECT_EQ(result, expected);
-}
-
-TEST(ReplaceMulti, скобки—кобки) {
-    string expression = "(3+4)(5+6)";
-    string expected = "(3+4)*(5+6)";
-    string result = replaceMulti(expression);
-    EXPECT_EQ(result, expected);
-}
 
 bool validateExpression(const string& expression) {
     for (char c : expression) {
@@ -454,6 +513,34 @@ bool validateExpression(const string& expression) {
     }
     return true;
 }
+
+TEST(validateExpression, неправильныйќператор) {
+    string expression = "100%%";
+    bool result = validateExpression(expression);
+
+    EXPECT_FALSE(result);
+}
+
+TEST(validateExpression, корректное¬ыражение) {
+    string expression = "3 + 5 * (2 - 8)";
+    EXPECT_TRUE(validateExpression(expression));
+}
+
+TEST(validateExpression, содержитЅуквы) {
+    string expression = "5 + x - 3";
+    EXPECT_FALSE(validateExpression(expression));
+}
+
+TEST(validateExpression, толькоѕробелы) {
+    string expression = "     ";
+    EXPECT_TRUE(validateExpression(expression));
+}
+
+TEST(validateExpression, пуста€—трока) {
+    string expression = "";
+    EXPECT_TRUE(validateExpression(expression));
+}
+
 
 double resultAnalis(const string& expression, int& i, bool& error) {
 
@@ -485,7 +572,7 @@ double resultAnalis(const string& expression, int& i, bool& error) {
     return left;
 }
 
-TEST(resultAnalis, сложение) {
+TEST(resultAnalis, сложение¬ычитание) {
     bool error = false;
     int position = 0;
     string expression = "2+3-1";
@@ -529,7 +616,7 @@ TEST(resultAnalis, приоритет—кобки) {
     EXPECT_DOUBLE_EQ(result, 25);
 }
 
-TEST(resultAnalis, сложное¬ыражение1) {
+TEST(resultAnalis, сложное¬ыражение) {
     bool error = false;
     int  position = 0;
     string expression = "2+3*4-5.3/2";
@@ -540,26 +627,15 @@ TEST(resultAnalis, сложное¬ыражение1) {
     EXPECT_DOUBLE_EQ(result, 2 + 3 * 4 - 5.3 / 2);
 }
 
-TEST(resultAnalis, сложное¬ыражение2) {
+TEST(resultAnalis, —ложное¬ыражение—о—кобками) {
     bool error = false;
     int position = 0;
-    string expression = "((2+3)4)-5";
+    string expression = "((2+3)(4-1))-5";
 
     double result = resultAnalis(expression, position, error);
 
     EXPECT_FALSE(error);
-    EXPECT_DOUBLE_EQ(result, ((2 + 3) * 4) - 5);
-}
-
-TEST(resultAnalis, сложное¬ыражение3) {
-    bool error = false;
-    int  position = 0;
-    string expression = "(2+3)(4-1)";
-
-    double result = resultAnalis(expression, position, error);
-
-    EXPECT_FALSE(error);
-    EXPECT_DOUBLE_EQ(result, (2 + 3) * (4 - 1));
+    EXPECT_DOUBLE_EQ(result, ((2 + 3) * (4 - 1)) - 5);
 }
 
 TEST(resultAnalis, двойнойќператор) {
@@ -571,8 +647,6 @@ TEST(resultAnalis, двойнойќператор) {
 
     EXPECT_TRUE(error);
 }
-
-
 
 void runAnalis() {
     while (true) {
