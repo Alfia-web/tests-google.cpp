@@ -180,14 +180,15 @@ TEST(firstAnalis, отрицательное„исло1) {
     EXPECT_DOUBLE_EQ(result, -4);
 }
 
-TEST(firstAnalis, отрицательное„исло2) {
-    bool error = true;
+TEST(firstAnalis,число¬—кобках) {
+    bool error = false;
     int position = 0;
-    string expression = "--4";
+    string expression = "(5)";
 
     double result = firstAnalis(expression, position, error);
 
-    EXPECT_TRUE(error);
+    EXPECT_FALSE(error);
+    EXPECT_DOUBLE_EQ(result, 5);
 }
 
 
@@ -214,7 +215,7 @@ TEST(firstAnalis, неправильноеƒес€тичное) {
 TEST(firstAnalis, выражение¬—кобках1) {
     bool error = true;
     int position = 0;
-    string expression = "(45-";
+    string expression = "(4";
     double result = firstAnalis(expression, position, error);
     EXPECT_TRUE(error);
 }
@@ -241,21 +242,21 @@ TEST(firstAnalis, отрицательные—кобки) {
     EXPECT_DOUBLE_EQ(result, 5);
 }
 
-TEST(firstAnalis, корень»скобки) {
+TEST(firstAnalis, корень) {
     bool error = false;
     int position = 0;
-    string expression = "#(5+4)";
+    string expression = "#16";
 
     double result = firstAnalis(expression, position, error);
 
     EXPECT_FALSE(error);
-    EXPECT_DOUBLE_EQ(result, 3);
+    EXPECT_DOUBLE_EQ(result, 4);
 }
 
 TEST(firstAnalis, отрицательный орень) {
     bool error = false;
     int position = 0;
-    string expression = "#(-6+2)";
+    string expression = "#-16";
 
     double result = firstAnalis(expression, position, error);
 
