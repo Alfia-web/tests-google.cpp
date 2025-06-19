@@ -10,8 +10,11 @@ using namespace std;
 
 bool exc = false;
 
-double resultAnalis(const string& expression, int& i, bool& error);
 string replaceMulti(const string& expression);
+double resultAnalis(const string& expression, int& i, bool& error);
+double mulDiv(const string& expression, int& i, bool& error);
+double stepen(const string& expression, int& i, bool& error);
+
 
 double readNumber(const string& expression, int& i) {
     string value;
@@ -28,11 +31,6 @@ bool isOperator(char c) {
 bool isValidSimbol(char c) {
     return isdigit(c) || c == '.' || c == '#' || isOperator(c) || c == '(' || c == ')' || isspace(c);
 }
-
-double mulDiv(const string& expression, int& i, bool& error);
-
-double stepen(const string& expression, int& i, bool& error);
-
 
 double operations(char op, double a, double b, bool& error) {
     switch (op) {
@@ -106,53 +104,39 @@ void testApply() {
     cout << "”спешных тестов: " << passed << " / " << tests.size() << endl;
 }
 
-void skipSpaces(const string& expression, int& i) {
-    while (i < expression.length() && isspace(expression[i]))
-        i++;
-}
-
 double firstAnalis(const string& expression, int& i, bool& error)
 {
-    skipSpaces(expression, i);
-
     bool negative = false;
 
     if (i < expression.size() && expression[i] == '-' &&
-        (i == 0 || expression[i - 1] == '(' || isOperator(expression[i - 1]))) //con1
+       (i == 0 || expression[i - 1] == '(' || isOperator(expression[i - 1]))) 
     {
         negative = true;
         i++;
-        skipSpaces(expression, i);
     }
-    if (i < expression.size() && expression[i] == '(') //con2
+    if (i < expression.size() && expression[i] == '(') 
     {
-        i++;
+        i++; 
         double value = resultAnalis(expression, i, error);
-        if (i >= expression.size() || expression[i] != ')') //con3
+        if (i >= expression.size() || expression[i] != ')')
         {
-            error = true;
+            error = true; 
             return 0;
         }
         i++;
         return negative ? -value : value;
     }
-    else if (i < expression.size() && expression[i] == '#')
+    else if (i < expression.size() && expression[i] == '#') 
     {
         i++;
         double value = firstAnalis(expression, i, error);
         double result = operations('#', 0, value, error);
         return negative ? -result : result;
     }
-    else if (i < expression.size() && (isdigit(expression[i]) || expression[i] == '.'))
+    else if (i < expression.size() && (isdigit(expression[i]) || expression[i] == '.')) 
     {
         bool hasPoint = false;
         int start = i;
-
-        if (expression[i] == '.' && (i + 1 >= expression.size() || !isdigit(expression[i + 1])))
-        {
-            error = true;
-            return 0;
-        }
 
         while (i < expression.size() && (isdigit(expression[i]) || expression[i] == '.'))
         {
@@ -170,35 +154,6 @@ double firstAnalis(const string& expression, int& i, bool& error)
 
         if (i > start && expression[i - 1] == '.')
         {
-            double resultAnalis(const string & expression, int& i, bool& error);
-            {
-                string newExpression = replaceMulti(expression);
-
-                double left = mulDiv(newExpression, i, error);
-
-                if (error)
-                    return 0;
-
-                while (i < newExpression.length())
-                {
-                    while (i < newExpression.length() && isspace(newExpression[i]))
-                        i++;
-
-                    if (i < newExpression.length() && (newExpression[i] == '+' || newExpression[i] == '-'))
-                    {
-
-                        char op = newExpression[i++];
-                        double right = mulDiv(newExpression, i, error);
-                        if (error)
-                            return 0;
-                        left = operations(op, left, right, error);
-                        if (error)
-                            return 0;
-                    }
-                    else break;
-                }
-                return left;
-            }
             error = true;
             return 0;
         }
@@ -212,9 +167,7 @@ double firstAnalis(const string& expression, int& i, bool& error)
         error = true;
         return 0;
     }
-
 }
-
 
 TEST(firstAnalis, отрицательное„исло1) {
     bool error = false;
@@ -261,7 +214,7 @@ TEST(firstAnalis, неправильноеƒес€тичное) {
 TEST(firstAnalis, выражение¬—кобках1) {
     bool error = true;
     int position = 0;
-    string expression = "(45-3";
+    string expression = "(45-";
     double result = firstAnalis(expression, position, error);
     EXPECT_TRUE(error);
 }
@@ -277,7 +230,7 @@ TEST(firstAnalis, выражение¬—кобках2) {
     EXPECT_DOUBLE_EQ(result, 42);
 }
 
-TEST(firstAnalis, отрицательные—обки) {
+TEST(firstAnalis, отрицательные—кобки) {
     bool error = false;
     int position = 0;
     string expression = "-(-5)";
@@ -309,6 +262,7 @@ TEST(firstAnalis, отрицательный орень) {
     EXPECT_TRUE(error);
 }
 
+
 double stepen(const string& expression, int& i, bool& error) {
     double left = firstAnalis(expression, i, error);
 
@@ -316,8 +270,6 @@ double stepen(const string& expression, int& i, bool& error) {
         return 0;
 
     while (i < expression.length()) {
-        while (i < expression.length() && isspace(expression[i]))
-            i++;
 
         if (i < expression.length() && expression[i] == '^') {
             i++;
@@ -407,8 +359,6 @@ double mulDiv(const string& expression, int& i, bool& error) {
 
     while (i < expression.length())
     {
-        while (i < expression.length() && isspace(expression[i]))
-            i++;
         if (i < expression.length() && (expression[i] == '*' || expression[i] == '/'))
         {
             char op = expression[i++];
@@ -435,7 +385,7 @@ TEST(mulDiv, последовательныеќперации) {
 TEST(mulDiv, пропущено„ислоѕослеќперанда”множени€) {
     bool error = true;
     int position = 0;
-    string expression = "4*";
+    string expression = "*4";
 
     double result = mulDiv(expression, position, error);
 
@@ -467,7 +417,7 @@ TEST(mulDiv, ассоциативностьƒеление) {
 TEST(mulDiv, пропущено„ислоѕередќперанда”множени€) {
     bool error = true;
     int position = 0;
-    string expression = "*4";
+    string expression = "4*";
 
     double result = mulDiv(expression, position, error);
 
@@ -537,6 +487,7 @@ double resultAnalis(const string& expression, int& i, bool& error) {
 
     string newExpression = replaceMulti(expression);
 
+    newExpression.erase(remove_if(newExpression.begin(), newExpression.end(), ::isspace), newExpression.end());
     double left = mulDiv(newExpression, i, error);
 
     if (error)
@@ -544,11 +495,9 @@ double resultAnalis(const string& expression, int& i, bool& error) {
 
     while (i < newExpression.length())
     {
-        while (i < newExpression.length() && isspace(newExpression[i]))
-            i++;
-
         if (i < newExpression.length() && (newExpression[i] == '+' || newExpression[i] == '-'))
         {
+
             char op = newExpression[i++];
             double right = mulDiv(newExpression, i, error);
             left = operations(op, left, right, error);
@@ -613,10 +562,10 @@ TEST(resultAnalis, —ложное¬ыражение—о—кобками) {
     EXPECT_DOUBLE_EQ(result, ((2 + 3) * (4 - 1)) - 5);
 }
 
-TEST(resultAnalis, двойнойќператор) {
+TEST(resultAnalis, Ќе«акрытые—кобки) {
     bool error = true;
     int  position = 0;
-    string expression = "2++5";
+    string expression = "(2+3";
 
     double result = resultAnalis(expression, position, error);
 
@@ -628,8 +577,7 @@ void runAnalis() {
         string input;
         cout << "¬ведите выражение" << endl;
         getline(cin, input);
-        if (input == "exit")
-            break;
+       
 
         if (!validateExpression(input)) {
             continue;
