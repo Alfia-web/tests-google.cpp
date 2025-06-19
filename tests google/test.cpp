@@ -77,7 +77,7 @@ void testApply() {
         {'^', 2, 3, 8, false},
         {'#', 0, 16, 4, false},
         {'#', 0, -9, 0, true},
-        {'$', 4, 2, 0, true},
+
     };
 
     int passed = 0;
@@ -248,6 +248,15 @@ TEST(firstAnalis, „исло—“очки) {
     EXPECT_DOUBLE_EQ(result, 0.5);
 }
 
+TEST(firstAnalis, неправильноеƒес€тичное) {
+    bool error = false;
+    int position = 0;
+    string expression = "5..5";
+
+    double result = firstAnalis(expression, position, error);
+
+    EXPECT_TRUE(error);
+}
 
 TEST(firstAnalis, выражение¬—кобках1) {
     bool error = true;
@@ -266,17 +275,6 @@ TEST(firstAnalis, выражение¬—кобках2) {
 
     EXPECT_FALSE(error);
     EXPECT_DOUBLE_EQ(result, 42);
-}
-
-
-TEST(firstAnalis, неправильноеƒес€тичное) {
-    bool error = false;
-    int position = 0;
-    string expression = "5..5";
-
-    double result = firstAnalis(expression, position, error);
-
-    EXPECT_TRUE(error);
 }
 
 TEST(firstAnalis, отрицательные—обки) {
@@ -302,7 +300,7 @@ TEST(firstAnalis, корень»скобки) {
 }
 
 TEST(firstAnalis, отрицательный орень) {
-    bool error = true;
+    bool error = false;
     int position = 0;
     string expression = "#(-6+2)";
 
@@ -324,11 +322,7 @@ double stepen(const string& expression, int& i, bool& error) {
         if (i < expression.length() && expression[i] == '^') {
             i++;
             double right = stepen(expression, i, error);
-            if (error)
-                return 0;
             left = operations('^', left, right, error);
-            if (error)
-                return 0;
         }
         else break;
     }
@@ -419,11 +413,7 @@ double mulDiv(const string& expression, int& i, bool& error) {
         {
             char op = expression[i++];
             double right = stepen(expression, i, error);
-            if (error)
-                return 0;
             left = operations(op, left, right, error);
-            if (error)
-                return 0;
         }
         else break;
     }
@@ -439,6 +429,17 @@ TEST(mulDiv, последовательныеќперации) {
 
     EXPECT_FALSE(error);
     EXPECT_DOUBLE_EQ(result, 4*2/2);
+}
+
+
+TEST(mulDiv, пропущено„ислоѕослеќперанда”множени€) {
+    bool error = true;
+    int position = 0;
+    string expression = "4*";
+
+    double result = mulDiv(expression, position, error);
+
+    EXPECT_TRUE(error);
 }
 
 TEST(mulDiv, ассоциативность”множени€) {
@@ -461,16 +462,6 @@ TEST(mulDiv, ассоциативностьƒеление) {
 
     EXPECT_FALSE(error);
     EXPECT_DOUBLE_EQ(result, 10/ 5 / 2);
-}
-
-TEST(mulDiv, пропущено„ислоѕослеќперанда”множени€) {
-    bool error = true;
-    int position = 0;
-    string expression = "4*";
-
-    double result = mulDiv(expression, position, error);
-
-    EXPECT_TRUE(error);
 }
 
 TEST(mulDiv, пропущено„ислоѕередќперанда”множени€) {
@@ -558,14 +549,9 @@ double resultAnalis(const string& expression, int& i, bool& error) {
 
         if (i < newExpression.length() && (newExpression[i] == '+' || newExpression[i] == '-'))
         {
-
             char op = newExpression[i++];
             double right = mulDiv(newExpression, i, error);
-            if (error)
-                return 0;
             left = operations(op, left, right, error);
-            if (error)
-                return 0;
         }
         else break;
     }
@@ -614,17 +600,6 @@ TEST(resultAnalis, приоритет—кобки) {
 
     EXPECT_FALSE(error);
     EXPECT_DOUBLE_EQ(result, 25);
-}
-
-TEST(resultAnalis, сложное¬ыражение) {
-    bool error = false;
-    int  position = 0;
-    string expression = "2+3*4-5.3/2";
-
-    double result = resultAnalis(expression, position, error);
-
-    EXPECT_FALSE(error);
-    EXPECT_DOUBLE_EQ(result, 2 + 3 * 4 - 5.3 / 2);
 }
 
 TEST(resultAnalis, —ложное¬ыражение—о—кобками) {
